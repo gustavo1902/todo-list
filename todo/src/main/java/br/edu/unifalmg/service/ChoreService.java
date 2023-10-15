@@ -142,6 +142,25 @@ public class ChoreService {
         }
     }
 
+    public void printAllChores() {
+        for (Chore chore : chores) {
+            System.out.println("Description: " + chore.getDescription());
+            System.out.println("Deadline: " + chore.getDeadline());
+            System.out.println("Is Completed: " + chore.getIsCompleted());
+            System.out.println("------------");
+        }
+    }
+    
+    public void printAllChoresUsingForEach() {
+        chores.forEach(chore -> {
+            System.out.println("Description: " + chore.getDescription());
+            System.out.println("Deadline: " + chore.getDeadline());
+            System.out.println("Is Completed: " + chore.getIsCompleted());
+            System.out.println("------------");
+        });
+    }
+    
+
     private final Predicate<List<Chore>> isChoreListEmpty = choreList -> choreList.isEmpty();
 
 }

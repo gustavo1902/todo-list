@@ -244,4 +244,26 @@ public class ChoreServiceTest {
         );
     }
 
+    @Test
+    public void testPrintAllChores() {
+        choreService.addChore("Chore 1", LocalDate.now());
+        choreService.addChore("Chore 2", LocalDate.now());
+        choreService.printAllChores();
+        String expectedOutput = "Description: Chore 1\nDeadline: " + LocalDate.now() + "\nIs Completed: false\n------------\n"
+                + "Description: Chore 2\nDeadline: " + LocalDate.now() + "\nIs Completed: false\n------------\n";
+
+        assertEquals(expectedOutput, outContent.toString());
+    }
+
+    @Test
+    public void testPrintAllChoresUsingForEach() {
+        choreService.addChore("Chore 1", LocalDate.now());
+        choreService.addChore("Chore 2", LocalDate.now());
+        choreService.printAllChoresUsingForEach();
+        String expectedOutput = "Description: Chore 1\nDeadline: " + LocalDate.now() + "\nIs Completed: false\n------------\n"
+                + "Description: Chore 2\nDeadline: " + LocalDate.now() + "\nIs Completed: false\n------------\n";
+
+        assertEquals(expectedOutput, outContent.toString());
+    }
+
 }
