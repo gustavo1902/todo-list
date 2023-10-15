@@ -159,6 +159,20 @@ public class ChoreService {
             System.out.println("------------");
         });
     }
+
+    public void editChore(String oldDescription, LocalDate oldDeadline, String newDescription, LocalDate newDeadline) {
+        boolean isChoreExist = this.chores.stream().anyMatch((chore) -> chore.getDescription().equals(oldDescription) && chore.getDeadline().isEqual(oldDeadline));
+        if (!isChoreExist) {
+            throw new ChoreNotFoundException("Chore not found. Unable to edit!");
+        }
+
+        for (Chore chore : this.chores) {
+            if (chore.getDescription().equals(oldDescription) && chore.getDeadline().isEqual(oldDeadline)) {
+                chore.setDescription(newDescription);
+                chore.setDeadline(newDeadline);
+            }
+        }
+    }
     
 
     private final Predicate<List<Chore>> isChoreListEmpty = choreList -> choreList.isEmpty();

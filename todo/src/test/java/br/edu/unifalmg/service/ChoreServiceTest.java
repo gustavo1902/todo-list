@@ -266,4 +266,31 @@ public class ChoreServiceTest {
         assertEquals(expectedOutput, outContent.toString());
     }
 
+    @Test
+    @DisplayName("#editChore > When the chore exists > Edit the description")
+    void editChoreWhenChoreExistsEditDescription() {
+        ChoreService service = new ChoreService();
+        Chore chore = service.addChore("Description", LocalDate.now());
+        service.editChore("Description", LocalDate.now(), "New Description", LocalDate.now().plusDays(1));
+
+        assertEquals("New Description", chore.getDescription());
+    }
+    
+    @Test
+    @DisplayName("#editChore > When the chore exists > Edit the deadline")
+    void editChoreWhenChoreExistsEditDeadline() {
+        ChoreService service = new ChoreService();
+        Chore chore = service.addChore("Description", LocalDate.noservice.editChore("Description", LocalDate.now(), "Description", LocalDate.now().plusDays(1));
+        assertEquals(LocalDate.now().plusDays(1), chore.getDeadline());
+    }
+    
+    @Test
+    @DisplayName("#editChore > When the chore does not exist > Throw an exception")
+    void editChoreWhenChoreDoesNotExistThrowAnException() {
+        ChoreService service = new ChoreService();
+        assertThrows(ChoreNotFoundException.class, () ->
+            service.editChore("Description", LocalDate.now(), "New Description", LocalDate.now().plusDays(1))
+        );
+    }
+    
 }
