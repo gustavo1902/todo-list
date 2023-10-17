@@ -4,12 +4,15 @@ import br.edu.unifalmg.domain.Chore;
 import br.edu.unifalmg.enumerator.ChoreFilter;
 import br.edu.unifalmg.exception.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ChoreService {
 
@@ -174,6 +177,22 @@ public class ChoreService {
         }
     }
     
+    public void loadChoresFromJsonFile(String jsonFilePath) {
+    try {
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Chore> loadedChores = objectMapper.readValue(new File(jsonFilePath), new TypeReference<List<Chore>>() {});
+        
+        if (loadedChores != null) {
+            chores = loadedChores;
+            System.out.println("Chores loaded successfully from " + jsonFilePath);
+        } else {
+            System.err.println("Failed to load chores from " + jsonFilePath);
+        }
+    } catch (IOException e) {
+        System.err.println("An error occurred while loading chores from " + jsonFilePath);
+        e.printStackTrace();
+    }
+}
 
     private final Predicate<List<Chore>> isChoreListEmpty = choreList -> choreList.isEmpty();
 
