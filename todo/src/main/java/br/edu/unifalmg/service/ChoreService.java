@@ -3,20 +3,30 @@ package br.edu.unifalmg.service;
 import br.edu.unifalmg.domain.Chore;
 import br.edu.unifalmg.enumerator.ChoreFilter;
 import br.edu.unifalmg.exception.*;
+import br.edu.unifalmg.repository.ChoreRepository;
+import br.edu.unifalmg.repository.impl.FileChoreRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ChoreService {
 
     private List<Chore> chores;
+
+    private ObjectMapper mapper;
+
+    private ChoreRepository repository;
+
+    public ChoreService(ChoreRepository repository) {
+        chores = new ArrayList<>();
+        mapper = new ObjectMapper().findAndRegisterModules();
+        this.repository = repository;
+    }
 
     public ChoreService() {
         chores = new ArrayList<>();
@@ -97,7 +107,7 @@ public class ChoreService {
             throw new EmptyChoreListException("Unable to remove a chore from an empty list");
         }
         boolean isChoreExist = this.chores.stream().anyMatch((chore -> chore.getDescription().equals(description)
-            && chore.getDeadline().isEqual(deadline)));
+                && chore.getDeadline().isEqual(deadline)));
         if (!isChoreExist) {
             throw new ChoreNotFoundException("The given chore does not exist.");
         }
@@ -133,6 +143,12 @@ public class ChoreService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Filter the chores by its status
+     *
+     * @param filter COMPLETED, UNCOMPLETED or ALL
+     * @return A list with the filtered chores
+     */
     public List<Chore> filterChores(ChoreFilter filter) {
         switch (filter) {
             case COMPLETED:
@@ -145,54 +161,23 @@ public class ChoreService {
         }
     }
 
-    public void printAllChores() {
-        for (Chore chore : chores) {
-            System.out.println("Description: " + chore.getDescription());
-            System.out.println("Deadline: " + chore.getDeadline());
-            System.out.println("Is Completed: " + chore.getIsCompleted());
-            System.out.println("------------");
-        }
-    }
-    
-    public void printAllChoresUsingForEach() {
-        chores.forEach(chore -> {
-            System.out.println("Description: " + chore.getDescription());
-            System.out.println("Deadline: " + chore.getDeadline());
-            System.out.println("Is Completed: " + chore.getIsCompleted());
-            System.out.println("------------");
-        });
+    /**
+     * Load the chores from the repository.
+     * The repository can return NULL if no chores are found.
+     */
+    public void loadChores() {
+        this.chores = repository.load();
     }
 
-    public void editChore(String oldDescription, LocalDate oldDeadline, String newDescription, LocalDate newDeadline) {
-        boolean isChoreExist = this.chores.stream().anyMatch((chore) -> chore.getDescription().equals(oldDescription) && chore.getDeadline().isEqual(oldDeadline));
-        if (!isChoreExist) {
-            throw new ChoreNotFoundException("Chore not found. Unable to edit!");
-        }
-
-        for (Chore chore : this.chores) {
-            if (chore.getDescription().equals(oldDescription) && chore.getDeadline().isEqual(oldDeadline)) {
-                chore.setDescription(newDescription);
-                chore.setDeadline(newDeadline);
-            }
-        }
+    /**
+     * Save the chores into the file
+     *
+     * @return TRUE, if the saved was completed and <br/>
+     *         FALSE, when the save fails
+     */
+    public Boolean saveChores() {
+        return repository.save(this.chores);
     }
-    
-    public void loadChoresFromJsonFile(String jsonFilePath) {
-    try {
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<Chore> loadedChores = objectMapper.readValue(new File(jsonFilePath), new TypeReference<List<Chore>>() {});
-        
-        if (loadedChores != null) {
-            chores = loadedChores;
-            System.out.println("Chores loaded successfully from " + jsonFilePath);
-        } else {
-            System.err.println("Failed to load chores from " + jsonFilePath);
-        }
-    } catch (IOException e) {
-        System.err.println("An error occurred while loading chores from " + jsonFilePath);
-        e.printStackTrace();
-    }
-}
 
     private final Predicate<List<Chore>> isChoreListEmpty = choreList -> choreList.isEmpty();
 
