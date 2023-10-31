@@ -11,7 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
 import org.mockito.verification.VerificationMode;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -269,7 +271,11 @@ public class ChoreServiceTest {
     @Test
     @DisplayName("#loadChores > When the chores are loaded > Update the chore list")
     void loadChoresWhenTheChoresAreLoadedUpdateTheChoreList() {
+
         when(repository.load()).thenReturn(new ArrayList<>() {{
+
+        Mockito.when(repository.load()).thenReturn(new ArrayList<>() {{
+
             add(new Chore("Chore #01", Boolean.FALSE, LocalDate.now()));
             add(new Chore("Chore #02", Boolean.TRUE, LocalDate.now().minusDays(2)));
         }});
@@ -286,6 +292,7 @@ public class ChoreServiceTest {
                 () -> assertEquals(Boolean.TRUE, loadedChores.get(1).getIsCompleted()),
                 () -> assertEquals(LocalDate.now().minusDays(2), loadedChores.get(1).getDeadline())
         );
+
     }
 
     @Test
@@ -431,3 +438,17 @@ public class ChoreServiceTest {
     }
 
 }
+
+    }
+
+    @Test
+    @DisplayName("#loadChores > When no chores are loaded > Update the chore list")
+    void loadChoresWhenNoChoresAreLoadedUpdateTheChoreList() {
+        Mockito.when(repository.load()).thenReturn(new ArrayList<>());
+        service.loadChores();
+        List<Chore> loadChores = service.getChores();
+        assertTrue(loadChores.isEmpty());
+    }
+
+}
+
