@@ -42,7 +42,7 @@ public class FileChoreRepository implements ChoreRepository {
     }
 
     @Override
-    public boolean save(List<Chore> chores) {
+    public boolean saveAll(List<Chore> chores) {
         try {
             mapper.writeValue(new File("chores.json"), chores);
             return true;
@@ -52,4 +52,9 @@ public class FileChoreRepository implements ChoreRepository {
         return false;
     }
 
+    @Override
+    public boolean save(Chore chore) {
+        throw new RuntimeException("Operation not supported yet.");
+    }
 
+}

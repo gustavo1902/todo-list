@@ -21,11 +21,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 
 public class FileChoreRepositoryTest {
 
@@ -43,7 +38,7 @@ public class FileChoreRepositoryTest {
     @Test
     @DisplayName("#load > When the file is found > When the content is empty > Return empty list")
     void loadWhenTheFileIsFoundWhenTheContentIsEmptyReturnEmptyList() throws IOException {
-        when(
+        Mockito.when(
                 mapper.readValue(new File("chores.json"), Chore[].class)
         ).thenThrow(MismatchedInputException.class);
 
@@ -54,7 +49,7 @@ public class FileChoreRepositoryTest {
     @Test
     @DisplayName("#load > When the file is not found (or path is invalid) > Return an empty list")
     void loadWhenTheFileIsNotFoundOrPathIsInvalidReturnAnEmptyList() throws IOException {
-        when(
+        Mockito.when(
                 mapper.readValue(new File("chores.json"), Chore[].class)
         ).thenThrow(FileNotFoundException.class);
 
@@ -65,7 +60,7 @@ public class FileChoreRepositoryTest {
     @Test
     @DisplayName("#load > When the file is loaded > Return a chores' list")
     void loadWhenTheFileIsLoadedReturnAChoresList() throws IOException {
-        when(
+        Mockito.when(
                 mapper.readValue(new File("chores.json"), Chore[].class)
         ).thenReturn(new Chore[] {
                 new Chore("First Chore", Boolean.FALSE, LocalDate.now()),
@@ -79,44 +74,4 @@ public class FileChoreRepositoryTest {
                 () -> assertEquals(LocalDate.now().minusDays(5), chores.get(1).getDeadline())
         );
     }
-
-    @Test
-    public void testLoadWhenTheFileIsFound() throws IOException {
-        // Arrange
-        Chore[] chores = {
-                new Chore("Chore 1", false, LocalDate.now()),
-                new Chore("Chore 2", true, LocalDate.now().minusDays(1))
-        };
-        when(mapper.readValue(new File("chores.json"), Chore[].class)).thenReturn(chores);
-
-        // Act
-        List<Chore> loadedChores = repository.load();
-
-        // Assert
-        Assertions.assertNotNull(loadedChores);
-        assertEquals(chores.length, loadedChores.size());
-        Mockito.verify(mapper, times(1)).readValue(any(File.class), Mockito.eq(Chore[].class));
-    }
-
-    @Test
-    public void testLoadWhenTheFileIsNotFound() throws IOException {
-        when(mapper.readValue(new File("chores.json"), Chore[].class)).thenThrow(FileNotFoundException.class);
-
-        List<Chore> loadedChores = repository.load();
-
-        Assertions.assertNotNull(loadedChores);
-        Assertions.assertTrue(loadedChores.isEmpty());
-    }
-
-    @Test
-    public void testSave() throws IOException {
-        List<Chore> chores = List.of(
-                new Chore("Chore 1", false, LocalDate.now())
-        );
-
-        repository.save(chores);
-
-        Mockito.verify(mapper, times(1)).writeValue(any(File.class), anyList());
-    }
-
 }

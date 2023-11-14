@@ -4,7 +4,6 @@ import br.edu.unifalmg.domain.Chore;
 import br.edu.unifalmg.enumerator.ChoreFilter;
 import br.edu.unifalmg.exception.*;
 import br.edu.unifalmg.repository.ChoreRepository;
-import br.edu.unifalmg.repository.impl.FileChoreRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
@@ -82,7 +81,7 @@ public class ChoreService {
 //         chore.setDeadline(deadline);
 //         chore.setIsCompleted(Boolean.FALSE);
 
-
+        repository.save(chore);
         chores.add(chore);
         return chore;
     }
@@ -107,7 +106,7 @@ public class ChoreService {
             throw new EmptyChoreListException("Unable to remove a chore from an empty list");
         }
         boolean isChoreExist = this.chores.stream().anyMatch((chore -> chore.getDescription().equals(description)
-                && chore.getDeadline().isEqual(deadline)));
+            && chore.getDeadline().isEqual(deadline)));
         if (!isChoreExist) {
             throw new ChoreNotFoundException("The given chore does not exist.");
         }
@@ -175,8 +174,48 @@ public class ChoreService {
      * @return TRUE, if the saved was completed and <br/>
      *         FALSE, when the save fails
      */
+
+    @Mock
+    private ChoreRepository repository;
+
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+        service = new ChoreService(repository);
+    }
+
+    @Test
+    @DisplayName("#updateChore > When updating a chore > Update the chore")
+    void updateChoreWhenUpdatingAChoreUpdateTheChore() {
+        Chore existingChore = new Chore(1L, "Existing Chore", Boolean.FALSE, LocalDate.now());
+
+        Mockito.when(repository.update(Mockito.any(Chore.class))).thenReturn(true);
+
+        service.updateChore(existingChore);
+
+        // Asserções
+        Mockito.verify(repository, Mockito.times(1)).update(Mockito.any(Chore.class));
+
+    }
+
+    public void loadChoresFromDB() {
+        List<Chore> loadedChores = repository.load();
+        // Salvar os chores carregados na lista local do serviço
+        this.chores.addAll(loadedChores);
+    }
+
+    // Método para atualizar uma chore carregada do banco
+    public void updateLoadedChore(Chore choreToUpdate) {
+        if (choreToUpdate.getId() != null) {
+            repository.update(choreToUpdate);
+        } else {
+            // Lógica para lidar com o erro de uma Chore sem ID
+        }
+    }
+
+
     public Boolean saveChores() {
-        return repository.save(this.chores);
+        return repository.saveAll(this.chores);
     }
 
     private final Predicate<List<Chore>> isChoreListEmpty = choreList -> choreList.isEmpty();
