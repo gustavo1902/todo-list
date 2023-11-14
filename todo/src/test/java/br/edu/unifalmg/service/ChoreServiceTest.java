@@ -298,4 +298,29 @@ public class ChoreServiceTest {
         assertTrue(loadChores.isEmpty());
     }
 
+    @Test
+        @DisplayName("#loadChoresFromDB > When the chores are loaded from the database > Update the chore list")
+        void loadChoresFromDBWhenTheChoresAreLoadedUpdateTheChoreList() {
+            List<Chore> loadedChores = new ArrayList<>();
+            loadedChores.add(new Chore(1L, "Chore #1", false, LocalDate.now()));
+            loadedChores.add(new Chore(2L, "Chore #2", true, LocalDate.now()));
+
+            Mockito.when(repository.load()).thenReturn(loadedChores);
+
+            service.loadChoresFromDB();
+
+            List<Chore> serviceChores = service.getChores();
+            assertAll(
+                    () -> assertEquals(2, serviceChores.size()),
+                    () -> assertEquals("Chore #1", serviceChores.get(0).getDescription()),
+                    () -> assertEquals(false, serviceChores.get(0).getIsCompleted()),
+                    () -> assertEquals(LocalDate.now(), serviceChores.get(0).getDeadline()),
+                    () -> assertEquals("Chore #2", serviceChores.get(1).getDescription()),
+                    () -> assertEquals(true, serviceChores.get(1).getIsCompleted()),
+                    () -> assertEquals(LocalDate.now(), serviceChores.get(1).getDeadline())
+            );
+        }
+        
+
+
 }

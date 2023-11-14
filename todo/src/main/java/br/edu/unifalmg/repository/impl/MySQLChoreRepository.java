@@ -119,4 +119,18 @@ public class MySQLChoreRepository implements ChoreRepository {
         }
     }
 
+    @Override
+    public void update(Chore chore) {
+        String query = "UPDATE chores SET description=?, is_completed=?, deadline=? WHERE id=?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, chore.getDescription());
+            statement.setBoolean(2, chore.getIsCompleted());
+            statement.setDate(3, Date.valueOf(chore.getDeadline()));
+            statement.setLong(4, chore.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            // Tratamento de exceções
+        }
+
 }
